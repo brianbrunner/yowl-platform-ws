@@ -43,8 +43,8 @@ var platform = module.exports = function(options) {
       ws.on('message', function(jsonBlob) {
         var parsed = JSON.parse(jsonBlob);
         bot(platform, { sessionId: sessionId, __ws: ws }, { type: 'message', message: parsed.message }, function(err, context, event, cb) {
-          if (context.__pending) {
-            context.__pending.forEach(function(res) {
+          if (context.session.__pending) {
+            context.session.__pending.forEach(function(res) {
               send_response(ws, res);
             });
           }
@@ -75,16 +75,16 @@ platform.send = function(context, event, response, cb) {
   if (!ws) {
     ws = sockets[context.sessionId];
     if (!ws) {
-      if (!context.__pending) {
-        context.__pending = [];
+      if (!context.session.__pending) {
+        context.session.__pending = [];
       }
-      context.__pending.push(response);
+      context.session.__pending.push(response);
     }
   }
 
   if (ws) {
     var responses = [response];
-    if (context.__pending) {
+    if (context.session.__pending) {
       responses = context.__pending.concat(responses);
     }
     responses.forEach(function(res) {
